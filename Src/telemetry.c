@@ -20,19 +20,15 @@
 #define TELEMETRY_KEEP_COUNT        3
 #define TELEMETRY_SEND_TIMEOUT_S    1
 
-typedef struct {
-    char text[TELEMETRY_MESSAGE_MAX];
-    size_t length;
-} telemetry_message_t;
-
 static QueueHandle_t telemetry_queue;
 
-static int send_all(int socket, const char *data, size_t length)
+static int send_all(int socket, const void *data, size_t length)
 {
+    const uint8_t *bytes = (const uint8_t *)data;
     size_t sent = 0U;
 
     while (sent < length) {
-        int result = send(socket, data + sent, length - sent, 0);
+        int result = send(socket, bytes + sent, length - sent, 0);
 
         if (result <= 0) {
             return -1;
@@ -82,7 +78,7 @@ static void configure_socket(int socket)
 static void telemetry_task(void *argument)
 {
     struct sockaddr_in server;
-    telemetry_message_t message;
+    telemetry_angles_t message;
 
     (void)argument;
 
@@ -116,7 +112,7 @@ static void telemetry_task(void *argument)
                               portMAX_DELAY) != pdPASS) {
                 break;
             }
-            if (send_all(socket_fd, message.text, message.length) != 0) {
+            if (send_all(socket_fd, &message, sizeof(message)) != 0) {
                 break;
             }
         }
@@ -129,7 +125,7 @@ static void telemetry_task(void *argument)
 int telemetry_init(void)
 {
     telemetry_queue = xQueueCreate(TELEMETRY_QUEUE_LENGTH,
-                                   sizeof(telemetry_message_t));
+                                   sizeof(telemetry_angles_t));
     return (telemetry_queue != NULL) ? 0 : -1;
 }
 
@@ -144,17 +140,16 @@ int telemetry_start(void)
                         TELEMETRY_TASK_PRIORITY, NULL) == pdPASS) ? 0 : -1;
 }
 
-int telemetry_publish(const char *message, size_t length)
+int telemetry_publish(float roll, float pitch)
 {
-    telemetry_message_t item;
+    telemetry_angles_t message;
 
-    if ((telemetry_queue == NULL) || (message == NULL) || (length == 0U) ||
-        (length > sizeof(item.text))) {
+    if (telemetry_queue == NULL) {
         return 0;
     }
 
-    memcpy(item.text, message, length);
-    item.length = length;
+    message.roll = roll;
+    message.pitch = pitch;
 
-    return (xQueueSend(telemetry_queue, &item, 0U) == pdPASS) ? 1 : 0;
+    return (xQueueSend(telemetry_queue, &message, 0U) == pdPASS) ? 1 : 0;
 }
