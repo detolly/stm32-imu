@@ -1,5 +1,5 @@
-#ifndef START_H
-#define START_H
+#ifndef IMU_H
+#define IMU_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -12,4 +12,4 @@ void init(void);
 }
 #endif
 
-#endif /* START_H */
+#endif /* IMU_H */
