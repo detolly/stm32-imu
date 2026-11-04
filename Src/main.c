@@ -24,6 +24,8 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "imu.h"
+#include "telemetry.h"
+#include "uart.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -441,6 +443,9 @@ void StartDefaultTask(void const * argument)
   /* init code for LWIP */
   MX_LWIP_Init();
   /* USER CODE BEGIN 5 */
+  if (telemetry_start() != 0) {
+    uart_log_error("telemetry task creation failed");
+  }
   /* lwIP creates its own threads; this task is no longer needed. */
   vTaskDelete(NULL);
   /* USER CODE END 5 */

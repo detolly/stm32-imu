@@ -1,4 +1,5 @@
 #include <math.h>
+#include <stdio.h>
 
 #include "imu.h"
 
@@ -9,6 +10,7 @@
 #include "main.h"
 #include "led.h"
 #include "mma8451.h"
+#include "telemetry.h"
 #include "uart.h"
 
 /* Sample period matches the accelerometer ODR. */
@@ -81,6 +83,21 @@ static void print_sample(const sample_t *sample)
                   (double)sample->angles.pitch);
 }
 
+static void publish_sample(const sample_t *sample)
+{
+    char message[TELEMETRY_MESSAGE_MAX];
+    int length;
+
+    length = snprintf(message, sizeof(message),
+                      "{\"roll\":%.1f,\"pitch\":%.1f}\n",
+                      (double)sample->angles.roll,
+                      (double)sample->angles.pitch);
+
+    if ((length > 0) && ((size_t)length < sizeof(message))) {
+        (void)telemetry_publish(message);
+    }
+}
+
 static void sensor_task(void *argument)
 {
     TickType_t last_wake = xTaskGetTickCount();
@@ -117,6 +134,7 @@ static void logger_task(void *argument)
     for (;;) {
         if (xQueueReceive(sample_queue, &sample, portMAX_DELAY) == pdPASS) {
             print_sample(&sample);
+            publish_sample(&sample);
         }
     }
 }
@@ -138,6 +156,11 @@ void init(void)
     sample_queue = xQueueCreate(SAMPLE_QUEUE_LENGTH, sizeof(sample_t));
     if (sample_queue == NULL) {
         uart_log_error("sample queue creation failed");
+        Error_Handler();
+    }
+
+    if (telemetry_init() != 0) {
+        uart_log_error("telemetry queue creation failed");
         Error_Handler();
     }
 

@@ -48,6 +48,7 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/Src/led.c
     ${CMAKE_CURRENT_SOURCE_DIR}/Src/mma8451.c
     ${CMAKE_CURRENT_SOURCE_DIR}/Src/imu.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/Src/telemetry.c
     ${CMAKE_CURRENT_SOURCE_DIR}/Src/uart.c
 )
 

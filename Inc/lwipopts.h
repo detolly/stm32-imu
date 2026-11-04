@@ -112,6 +112,10 @@
 /*-----------------------------------------------------------------------------*/
 /* USER CODE BEGIN 1 */
 
+/* Used by the telemetry TCP client for send timeouts and keepalive tuning. */
+#define LWIP_SO_SNDTIMEO 1
+#define LWIP_TCP_KEEPALIVE 1
+
 /* USER CODE END 1 */
 
 #ifdef __cplusplus
