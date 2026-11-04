@@ -1,10 +1,6 @@
 #ifndef UART_H
 #define UART_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <stdint.h>
 #include "stm32f7xx_hal.h"
 
@@ -42,9 +38,5 @@ void uart_log_error(const char *fmt, ...) UART_PRINTF_LIKE(1, 2);
 void uart_log_warn(const char *fmt, ...)  UART_PRINTF_LIKE(1, 2);
 void uart_log_info(const char *fmt, ...)  UART_PRINTF_LIKE(1, 2);
 void uart_log_debug(const char *fmt, ...) UART_PRINTF_LIKE(1, 2);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* UART_H */

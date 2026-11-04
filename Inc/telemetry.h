@@ -3,10 +3,6 @@
 
 #include <stddef.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 /* Telemetry server endpoint. Change these to point at another host. */
 #ifndef TELEMETRY_SERVER_IP
 #define TELEMETRY_SERVER_IP "10.0.0.81"
@@ -26,9 +22,5 @@ int telemetry_start(void);
 
 /* Queues one newline-terminated message without blocking; returns 1 on success. */
 int telemetry_publish(const char *message, size_t length);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* TELEMETRY_H */

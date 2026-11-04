@@ -1,10 +1,6 @@
 #ifndef MMA8451_H
 #define MMA8451_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <stdint.h>
 #include "stm32f7xx_hal.h"
 
@@ -184,9 +180,5 @@ HAL_StatusTypeDef mma8451_write_reg(uint8_t reg, uint8_t value);
 
 HAL_StatusTypeDef mma8451_set_range(mma8451_range_t range);
 HAL_StatusTypeDef mma8451_set_data_rate(mma8451_odr_t odr);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* MMA8451_H */
