@@ -39,10 +39,12 @@ typedef struct {
 
 static QueueHandle_t sample_queue;
 
+/*
 static int32_t accel_to_mg(float g)
 {
     return (int32_t)((g * 1000.0f) + ((g >= 0.0f) ? 0.5f : -0.5f));
 }
+*/
 
 static uint8_t read_sample(mma8451_accel_t *accel)
 {
@@ -72,6 +74,7 @@ static angles_t calculate_angles(const mma8451_accel_t *accel)
     return angles;
 }
 
+/*
 static void print_sample(const sample_t *sample)
 {
     uart_log_info("x=%ld mg y=%ld mg z=%ld mg roll=%.1f deg pitch=%.1f deg",
@@ -81,6 +84,7 @@ static void print_sample(const sample_t *sample)
                   (double)sample->angles.roll,
                   (double)sample->angles.pitch);
 }
+*/
 
 static void sensor_task(void *argument)
 {
@@ -98,7 +102,7 @@ static void sensor_task(void *argument)
             sample.accel = accel;
             sample.angles = calculate_angles(&accel);
 
-            /* The LED strip follows pitch; roll is only logged. */
+            /* The LED strip follows pitch; roll is only reported over telemetry. */
             led_show_angle(sample.angles.pitch);
 
             /* Never block the sampling task on the logger. */
@@ -117,7 +121,8 @@ static void logger_task(void *argument)
 
     for (;;) {
         if (xQueueReceive(sample_queue, &sample, portMAX_DELAY) == pdPASS) {
-            print_sample(&sample);
+            /* UART angle logging disabled; telemetry carries the angles. */
+            /* print_sample(&sample); */
             (void)telemetry_publish(sample.angles.roll, sample.angles.pitch);
         }
     }
