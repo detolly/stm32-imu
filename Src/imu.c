@@ -94,7 +94,7 @@ static void publish_sample(const sample_t *sample)
                       (double)sample->angles.pitch);
 
     if ((length > 0) && ((size_t)length < sizeof(message))) {
-        (void)telemetry_publish(message);
+        (void)telemetry_publish(message, (size_t)length);
     }
 }
 

@@ -22,6 +22,7 @@
 
 typedef struct {
     char text[TELEMETRY_MESSAGE_MAX];
+    size_t length;
 } telemetry_message_t;
 
 static QueueHandle_t telemetry_queue;
@@ -115,8 +116,7 @@ static void telemetry_task(void *argument)
                               portMAX_DELAY) != pdPASS) {
                 break;
             }
-            if (send_all(socket_fd, message.text,
-                         strlen(message.text)) != 0) {
+            if (send_all(socket_fd, message.text, message.length) != 0) {
                 break;
             }
         }
@@ -144,16 +144,17 @@ int telemetry_start(void)
                         TELEMETRY_TASK_PRIORITY, NULL) == pdPASS) ? 0 : -1;
 }
 
-int telemetry_publish(const char *message)
+int telemetry_publish(const char *message, size_t length)
 {
     telemetry_message_t item;
 
-    if ((telemetry_queue == NULL) || (message == NULL)) {
+    if ((telemetry_queue == NULL) || (message == NULL) || (length == 0U) ||
+        (length > sizeof(item.text))) {
         return 0;
     }
 
-    strncpy(item.text, message, sizeof(item.text) - 1U);
-    item.text[sizeof(item.text) - 1U] = '\0';
+    memcpy(item.text, message, length);
+    item.length = length;
 
     return (xQueueSend(telemetry_queue, &item, 0U) == pdPASS) ? 1 : 0;
 }

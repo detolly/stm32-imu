@@ -1,7 +1,6 @@
 #include <stdarg.h>
 #include <stddef.h>
 #include <stdio.h>
-#include <string.h>
 
 #include "FreeRTOS.h"
 #include "semphr.h"
@@ -68,22 +67,6 @@ void uart_write_len(const uint8_t *data, uint16_t length)
     uart_lock();
     uart_transmit(data, length);
     uart_unlock();
-}
-
-void uart_write(const char *text)
-{
-    size_t length;
-
-    if (text == NULL) {
-        return;
-    }
-
-    length = strlen(text);
-    if (length > UINT16_MAX) {
-        length = UINT16_MAX;
-    }
-
-    uart_write_len((const uint8_t *)text, (uint16_t)length);
 }
 
 static void uart_vlog(uart_log_level_t level, const char *fmt, va_list args)

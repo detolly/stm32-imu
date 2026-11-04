@@ -1,6 +1,8 @@
 #ifndef TELEMETRY_H
 #define TELEMETRY_H
 
+#include <stddef.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -23,7 +25,7 @@ int telemetry_init(void);
 int telemetry_start(void);
 
 /* Queues one newline-terminated message without blocking; returns 1 on success. */
-int telemetry_publish(const char *message);
+int telemetry_publish(const char *message, size_t length);
 
 #ifdef __cplusplus
 }

@@ -33,7 +33,6 @@ typedef enum {
 /* Creates the mutex that serializes UART access between tasks. */
 void uart_init(void);
 
-void uart_write(const char *text);
 void uart_write_len(const uint8_t *data, uint16_t length);
 
 void uart_log(uart_log_level_t level, const char *fmt, ...)
