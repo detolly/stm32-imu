@@ -134,6 +134,13 @@ standard names. */
 
 /* USER CODE BEGIN Defines */
 /* Section where parameter definitions can be added (for instance, to override default ones in FreeRTOS.h) */
+/* The generated heap is too small for lwIP plus the application tasks. */
+#undef configTOTAL_HEAP_SIZE
+#define configTOTAL_HEAP_SIZE                    ((size_t)65536)
+
+/* Used by the 100 Hz sensor task. */
+#undef INCLUDE_vTaskDelayUntil
+#define INCLUDE_vTaskDelayUntil                  1
 /* USER CODE END Defines */
 
 #endif /* FREERTOS_CONFIG_H */

@@ -5,8 +5,8 @@
 extern "C" {
 #endif
 
+/* Initializes the accelerometer and creates the sensor/logger tasks. */
 void init(void);
-void loop(void);
 
 #ifdef __cplusplus
 }

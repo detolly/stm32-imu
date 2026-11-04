@@ -148,7 +148,6 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-    loop();
   }
   /* USER CODE END 3 */
 }
@@ -442,11 +441,8 @@ void StartDefaultTask(void const * argument)
   /* init code for LWIP */
   MX_LWIP_Init();
   /* USER CODE BEGIN 5 */
-  /* Infinite loop */
-  for(;;)
-  {
-    osDelay(1);
-  }
+  /* lwIP creates its own threads; this task is no longer needed. */
+  vTaskDelete(NULL);
   /* USER CODE END 5 */
 }
 

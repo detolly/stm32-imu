@@ -30,6 +30,9 @@ typedef enum {
 #define UART_PRINTF_LIKE(fmt_index, arg_index)
 #endif
 
+/* Creates the mutex that serializes UART access between tasks. */
+void uart_init(void);
+
 void uart_write(const char *text);
 void uart_write_len(const uint8_t *data, uint16_t length);
 
