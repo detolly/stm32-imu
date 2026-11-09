@@ -41,15 +41,6 @@ static const led_pin_t leds[] = {
 #define LED_ON_STATE        GPIO_PIN_SET
 #define LED_OFF_STATE       GPIO_PIN_RESET
 
-/*
-#define TEST_STEP_DEG       2.0f
-#define TEST_STEP_MS        100U
-
-static float test_angle;
-static int8_t test_direction;
-static uint32_t test_next_tick;
-*/
-
 void led_show_angle(float angle_deg)
 {
     uint32_t center;
@@ -82,46 +73,3 @@ void led_show_angle(float angle_deg)
         HAL_GPIO_WritePin(leds[i].port, leds[i].pin, state);
     }
 }
-
-void led_clear(void)
-{
-    uint32_t i;
-
-    for (i = 0U; i < LED_COUNT; i++) {
-        HAL_GPIO_WritePin(leds[i].port, leds[i].pin, LED_OFF_STATE);
-    }
-}
-
-/*
-void led_test_init(void)
-{
-    test_angle = LED_ANGLE_MIN_DEG;
-    test_direction = 1;
-    test_next_tick = HAL_GetTick();
-
-    led_clear();
-    led_show_angle(test_angle);
-}
-
-void led_test_loop(void)
-{
-    uint32_t now = HAL_GetTick();
-
-    if ((int32_t)(now - test_next_tick) < 0) {
-        return;
-    }
-    test_next_tick += TEST_STEP_MS;
-
-    test_angle += (float)test_direction * TEST_STEP_DEG;
-
-    if (test_angle >= LED_ANGLE_MAX_DEG) {
-        test_angle = LED_ANGLE_MAX_DEG;
-        test_direction = -1;
-    } else if (test_angle <= LED_ANGLE_MIN_DEG) {
-        test_angle = LED_ANGLE_MIN_DEG;
-        test_direction = 1;
-    }
-
-    led_show_angle(test_angle);
-}
-*/
