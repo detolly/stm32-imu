@@ -65,8 +65,9 @@ static void sensor_task(void *argument)
         if (read_sample(&accel) != 0U) {
             angles_t angles = calculate_angles(&accel);
 
-            /* The LED strip follows pitch; roll is only reported over telemetry. */
+            /* The LED strip follows pitch; both angles are reported over telemetry. */
             led_show_angle(angles.pitch);
+            (void)telemetry_publish(angles.roll, angles.pitch);
         }
 
         vTaskDelayUntil(&last_wake, period);
@@ -80,13 +81,8 @@ void init(void)
         Error_Handler();
     }
 
-    if (mma8451_init(MMA8451_ADDR_SA0_LOW) != HAL_OK) {
+    if (mma8451_init() != HAL_OK) {
         uart_log_error("accelerometer initialization failed");
-        Error_Handler();
-    }
-
-    if (mma8451_set_data_rate(MMA8451_ODR_100HZ) != HAL_OK) {
-        uart_log_error("setting data rate failed");
         Error_Handler();
     }
 
