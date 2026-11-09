@@ -3,7 +3,7 @@
 
 /* Telemetry server endpoint. Change these to point at another host. */
 #ifndef TELEMETRY_SERVER_IP
-#define TELEMETRY_SERVER_IP "10.0.0.81"
+#define TELEMETRY_SERVER_IP "10.0.1.1"
 #endif
 
 #ifndef TELEMETRY_SERVER_PORT
