@@ -33,41 +33,46 @@ static const led_pin_t leds[] = {
 
 #define LED_COUNT           ((uint32_t)(sizeof(leds) / sizeof(leds[0])))
 #define LED_ACTIVE_COUNT    4U
+#define LED_HALF_ACTIVE     (LED_ACTIVE_COUNT / 2U)
 
 /* Range of the angle that is mapped across the strip. */
 #define LED_ANGLE_MIN_DEG   (-20.0f)
 #define LED_ANGLE_MAX_DEG   (20.0f)
+#define LED_ANGLE_SPAN_DEG  (LED_ANGLE_MAX_DEG - LED_ANGLE_MIN_DEG)
 
 #define LED_ON_STATE        GPIO_PIN_SET
 #define LED_OFF_STATE       GPIO_PIN_RESET
 
-void led_show_angle(float angle_deg)
+static uint32_t angle_to_center_led(float angle_deg)
 {
-    uint32_t center;
-    uint32_t first;
-    uint32_t i;
-
     if (angle_deg < LED_ANGLE_MIN_DEG) {
         angle_deg = LED_ANGLE_MIN_DEG;
     } else if (angle_deg > LED_ANGLE_MAX_DEG) {
         angle_deg = LED_ANGLE_MAX_DEG;
     }
 
-    center = (uint32_t)(((angle_deg - LED_ANGLE_MIN_DEG) /
-                         (LED_ANGLE_MAX_DEG - LED_ANGLE_MIN_DEG)) *
-                        (float)(LED_COUNT - 1U) + 0.5f);
+    /* Map the clamped angle onto the LED indices, rounded to nearest. */
+    return (uint32_t)(((angle_deg - LED_ANGLE_MIN_DEG) / LED_ANGLE_SPAN_DEG) *
+                      (float)(LED_COUNT - 1U) + 0.5f);
+}
 
-    if (center < (LED_ACTIVE_COUNT / 2U)) {
-        first = 0U;
-    } else if (center > ((LED_COUNT - 1U) - (LED_ACTIVE_COUNT / 2U))) {
-        first = LED_COUNT - LED_ACTIVE_COUNT;
-    } else {
-        first = center - (LED_ACTIVE_COUNT / 2U);
-    }
+static uint32_t first_active_led(uint32_t center)
+{
+    uint32_t last = LED_COUNT - LED_ACTIVE_COUNT;
+    uint32_t first = (center >= LED_HALF_ACTIVE)
+                     ? (center - LED_HALF_ACTIVE) : 0U;
 
-    for (i = 0U; i < LED_COUNT; i++) {
-        GPIO_PinState state = ((i >= first) &&
-                               (i < (first + LED_ACTIVE_COUNT)))
+    /* Keep the whole block on the strip near either end. */
+    return (first > last) ? last : first;
+}
+
+void led_show_angle(float angle_deg)
+{
+    uint32_t first = first_active_led(angle_to_center_led(angle_deg));
+    uint32_t last = first + LED_ACTIVE_COUNT;
+
+    for (uint32_t i = 0U; i < LED_COUNT; i++) {
+        GPIO_PinState state = ((i >= first) && (i < last))
                               ? LED_ON_STATE : LED_OFF_STATE;
 
         HAL_GPIO_WritePin(leds[i].port, leds[i].pin, state);
