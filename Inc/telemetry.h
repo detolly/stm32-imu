@@ -1,7 +1,7 @@
 #ifndef TELEMETRY_H
 #define TELEMETRY_H
 
-/* Telemetry server endpoint. Change these to point at another host. */
+/* Telemetry server endpoint. */
 #ifndef TELEMETRY_SERVER_IP
 #define TELEMETRY_SERVER_IP "10.0.1.1"
 #endif
@@ -19,7 +19,7 @@ typedef struct {
 /* Creates the outbound message queue. Call before the scheduler starts. */
 int telemetry_init(void);
 
-/* Creates the TCP client task. Call after MX_LWIP_Init(). */
+/* Creates the TCP client task. */
 int telemetry_start(void);
 
 /* Queues one angle pair without blocking; returns 1 on success. */

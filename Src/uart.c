@@ -2,8 +2,12 @@
 #include <stddef.h>
 #include <stdio.h>
 
+#include <stm32f7xx_hal.h>
+
 #include "FreeRTOS.h"
+#include "queue.h"
 #include "semphr.h"
+#include "task.h"
 
 #include "uart.h"
 
@@ -11,13 +15,20 @@ extern UART_HandleTypeDef huart3;
 
 #define UART_LOG_HANDLE     (&huart3)
 
+#define UART_QUEUE_LENGTH       8U
+#define UART_TASK_STACK_WORDS   512U
+#define UART_TASK_PRIORITY      (tskIDLE_PRIORITY + 2U)
+
 static SemaphoreHandle_t uart_mutex;
 
-void uart_init(void)
+int uart_init(void)
 {
+    uart_mutex = xSemaphoreCreateMutex();
     if (uart_mutex == NULL) {
-        uart_mutex = xSemaphoreCreateMutex();
+        return -1;
     }
+
+    return 0;
 }
 
 static void uart_lock(void)
@@ -45,16 +56,11 @@ static void uart_transmit(const uint8_t *data, uint16_t length)
 static const char *uart_level_tag(uart_log_level_t level)
 {
     switch (level) {
-    case UART_LOG_LEVEL_ERROR:
-        return "E";
-    case UART_LOG_LEVEL_WARN:
-        return "W";
-    case UART_LOG_LEVEL_INFO:
-        return "I";
-    case UART_LOG_LEVEL_DEBUG:
-        return "D";
-    default:
-        return "?";
+    case UART_LOG_LEVEL_ERROR: return "E";
+    case UART_LOG_LEVEL_WARN:  return "W";
+    case UART_LOG_LEVEL_INFO:  return "I";
+    case UART_LOG_LEVEL_DEBUG: return "D";
+    default:                   return "?";
     }
 }
 
@@ -75,10 +81,6 @@ static void uart_vlog(uart_log_level_t level, const char *fmt, va_list args)
     int header_length;
     int body_length;
     size_t length;
-
-    if ((fmt == NULL) || ((unsigned)level > (unsigned)UART_LOG_MIN_LEVEL)) {
-        return;
-    }
 
     /* Hold the mutex across formatting too: newlib's printf state is shared. */
     uart_lock();

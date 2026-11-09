@@ -29,27 +29,11 @@ extern I2C_HandleTypeDef hi2c2;
         }                                                                \
     } while (0)
 
-#ifndef MMA8451_DEFAULT_RANGE
 #define MMA8451_DEFAULT_RANGE           MMA8451_RANGE_2G
-#endif
-
-#ifndef MMA8451_DEFAULT_ODR
 #define MMA8451_DEFAULT_ODR             MMA8451_ODR_100HZ
-#endif
-
-#ifndef MMA8451_DEFAULT_OVERSAMPLING
 #define MMA8451_DEFAULT_OVERSAMPLING    MMA8451_OS_HIGH_RESOLUTION
-#endif
-
-#ifndef MMA8451_DEFAULT_LNOISE
 #define MMA8451_DEFAULT_LNOISE          0
-#endif
-
-/* Set to 1 to route the data-ready interrupt to INT1. The INT1 pin must then
- * be configured as an EXTI input in CubeMX/your board file. */
-#ifndef MMA8451_USE_DRDY_INTERRUPT
 #define MMA8451_USE_DRDY_INTERRUPT      0
-#endif
 
 static uint8_t mma8451_address = MMA8451_ADDR_DEFAULT;
 static mma8451_range_t mma8451_range = MMA8451_DEFAULT_RANGE;
@@ -226,6 +210,12 @@ HAL_StatusTypeDef mma8451_init(uint8_t address)
     uart_log_info("MMA8451: initialized (addr=0x%02X, range=%ug)",
                   address,
                   (unsigned)(2U << (unsigned)mma8451_range));
+
+    status = mma8451_set_data_rate(MMA8451_ODR_100HZ) != HAL_OK;
+    if (status != HAL_OK) {
+        uart_log_error("setting data rate failed");
+        return status;
+    }
 
     return HAL_OK;
 }
