@@ -1,3 +1,4 @@
+LED GPIO from right to left:
 
 PB11
 PB10
@@ -19,3 +20,6 @@ PF13
 PB1
 PC2
 PF4
+
+I2C SDA: PF0
+I2C SCL: PF1
