@@ -23,6 +23,7 @@ static SemaphoreHandle_t uart_mutex;
 
 int uart_init(void)
 {
+    // Create a semaphore for thread-safety.
     uart_mutex = xSemaphoreCreateMutex();
     if (uart_mutex == NULL) {
         return -1;

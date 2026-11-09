@@ -1,3 +1,6 @@
+
+Generated program start is main.c, which calls init() in imu.c
+
 LED GPIO from right to left:
 
 PB11

@@ -443,9 +443,6 @@ void StartDefaultTask(void const * argument)
   /* init code for LWIP */
   MX_LWIP_Init();
   /* USER CODE BEGIN 5 */
-  if (telemetry_start() != 0) {
-    uart_log_error("telemetry task creation failed");
-  }
   /* lwIP creates its own threads; this task is no longer needed. */
   vTaskDelete(NULL);
   /* USER CODE END 5 */

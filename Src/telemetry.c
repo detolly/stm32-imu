@@ -39,6 +39,8 @@ static int send_all(int socket_fd, const void *data, size_t length)
 
 static void telemetry_task(void *argument)
 {
+    // Most of this is boilerplate unix socket gunk.
+    
     struct sockaddr_in server;
     telemetry_angles_t message;
     int enabled = 1;
@@ -77,15 +79,17 @@ static void telemetry_task(void *argument)
 
         uart_log_info("telemetry: connected");
 
-        /* Drop readings queued before the connection was available. */
+        // Drop readings queued before the connection was available. //
         (void)xQueueReset(telemetry_queue);
 
         for (;;) {
+            // The main loop: Whenever there's something to be processed, send it over the socket.
             if (xQueueReceive(telemetry_queue, &message,
                               portMAX_DELAY) != pdPASS) {
                 break;
             }
             if (send_all(socket_fd, &message, sizeof(message)) != 0) {
+                // If sending fails, just restart the connection.
                 uart_log_error("telemetry: send failed (errno=%d)", errno);
                 break;
             }
@@ -99,37 +103,32 @@ static void telemetry_task(void *argument)
 
 int telemetry_init(void)
 {
+    // Create the queue for the data to be sent over the network.
     telemetry_queue = xQueueCreate(TELEMETRY_QUEUE_LENGTH,
                                    sizeof(telemetry_angles_t));
-    return (telemetry_queue != NULL) ? 0 : -1;
-}
 
-int telemetry_start(void)
-{
-    if (telemetry_queue == NULL) {
+    if (telemetry_queue != NULL)
         return -1;
-    }
 
+    // Create the main server conneciton task.
     if (xTaskCreate(telemetry_task, "telemetry",
                     TELEMETRY_TASK_STACK_WORDS, NULL,
-                    TELEMETRY_TASK_PRIORITY, NULL) != pdPASS) {
+                    TELEMETRY_TASK_PRIORITY, NULL) != pdPASS)
         return -1;
-    }
 
-    uart_log_info("telemetry: task created");
     return 0;
 }
 
 int telemetry_publish(float roll, float pitch)
 {
+    // Pack the data into the struct the queue expects, and add it to the queue.
     telemetry_angles_t message;
 
-    if (telemetry_queue == NULL) {
+    if (telemetry_queue == NULL)
         return 0;
-    }
 
     message.roll = roll;
     message.pitch = pitch;
 
-    return (xQueueSend(telemetry_queue, &message, 0U) == pdPASS) ? 1 : 0;
+    return xQueueSend(telemetry_queue, &message, 0U) == pdPASS ? 1 : 0;
 }

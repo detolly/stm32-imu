@@ -16,11 +16,8 @@ typedef struct {
     float pitch;
 } telemetry_angles_t;
 
-/* Creates the outbound message queue. Call before the scheduler starts. */
+/* Creates the outbound message queue, and starts the telemetry task. */
 int telemetry_init(void);
-
-/* Creates the TCP client task. */
-int telemetry_start(void);
 
 /* Queues one angle pair without blocking; returns 1 on success. */
 int telemetry_publish(float roll, float pitch);
